@@ -1,7 +1,7 @@
 #ifndef __HANDOFF_H_INCLUDED__
 #define __HANDOFF_H_INCLUDED__
 
-#include <map>
+#include <unordered_map>
 #include <iostream>
 
 using namespace std;
@@ -14,8 +14,8 @@ public:
   int id;
   int sck;
   int dck;
-  map <int,pair<pair<int,int>,T > > slots;
-  map <int,pair<pair<int,int>,T > > tokens;
+  unordered_map <int,pair<pair<int,int>,T > > slots;
+  unordered_map <int,pair<pair<int,int>,T > > tokens;
 
   Handoff(int i=0, T v=zero())
   {
@@ -29,7 +29,7 @@ public:
   { 
     output << "id: " << o.id << " val: " << o.val << 
       " sck: " << o.sck <<" dck: " << o.dck << endl;
-    typename map<int,pair<pair<int,int>,T> >::const_iterator it;
+    typename unordered_map<int,pair<pair<int,int>,T> >::const_iterator it;
     for (it = o.slots.begin(); it != o.slots.end(); it++)
     {
       output << "slot: " << it->first << "->([sck:" << it->second.first.first <<
@@ -72,8 +72,8 @@ public:
 
   void mergein (Handoff j)
   {
-    typename map<int,pair<pair<int,int>,T > >::const_iterator its;
-    typename map<int,pair<pair<int,int>,T > >::const_iterator itt;
+    typename unordered_map<int,pair<pair<int,int>,T > >::const_iterator its;
+    typename unordered_map<int,pair<pair<int,int>,T > >::const_iterator itt;
     pair<pair<int,int>,T> token;
     pair<pair<int,int>,T> slot;
 
