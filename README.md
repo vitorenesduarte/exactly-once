@@ -9,3 +9,13 @@ $ export HUNTER_ROOT=~/.hunter
 ```bash
 $ make
 ```
+
+### Run
+```bash
+$ _builds/main
+```
+
+### Run tests
+```bash
+$ _builds/simple_test
+```
