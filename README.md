@@ -23,3 +23,6 @@ $ nc -4u localhost 3000
 ```bash
 $ _builds/simple_test
 ```
+
+### Assumptions
+- max UDP datagram size is 2^16 = 65536

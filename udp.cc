@@ -24,9 +24,7 @@ void UDPClient::send(const string& msg) {
 
 // UDPServer
 UDPServer::UDPServer(const string& port)
-  : socket_(io_service_, udp::endpoint(udp::v4(), stoi(port))) { }
-
-void UDPServer::spawn()
+  : socket_(io_service_, udp::endpoint(udp::v4(), stoi(port)))
 {
   start_receive();
   thread_ = boost::thread(

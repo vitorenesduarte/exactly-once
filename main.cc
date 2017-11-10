@@ -5,7 +5,6 @@ using namespace std;
 int main()
 {
     UDPServer server("3000");
-    server.spawn();
 
     UDPClient client("localhost", "3000");
     client.send("OLAAA");

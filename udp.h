@@ -34,7 +34,6 @@ private:
 
 public:
   UDPServer(const string& port);
-  void spawn();
 
 private:
   void start_receive();
