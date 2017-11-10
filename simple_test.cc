@@ -38,7 +38,7 @@ void test1()
 
 void test2()
 {
-  // replay resilience 
+  // replay resilience
   Handoff<int> ov[4];
   Handoff<int> oldov[4];
 
@@ -53,18 +53,18 @@ void test2()
   {
     // merge i % 4 <- (i + 1) % 4
     ov[i%4].mergein(ov[(i+1)%4]);
-    
+
     // merge i % 4 -> (i + 1) % 4
     ov[(i+1)%4].mergein(ov[i%4]);
-    
+
     // not so random atacker replay
     if (rand() % 2 == 0)
     {
       oldov[i%4]=ov[i%4]; // store fresher old state
     }
-    
+
     if (rand() % 2 == 0)
-    { 
+    {
       ov[i%4].mergein(oldov[(i+1)%4]); // merge old state ->
     }
 
@@ -113,7 +113,7 @@ void gplot1()
   const int storep=20; // probablility of storing a state for later replay
   const int replayp=75; // probability of injecting a past message state
   const bool replay=false;
-  Handoff<int> ov[nodes]; 
+  Handoff<int> ov[nodes];
   Handoff<int> rsov[nodes]; // state at round start
   Handoff<int> rov[nodes]; // state cache for replay fault injection
   cout << "# Initialize" << endl;
@@ -169,7 +169,7 @@ void gplot1()
         // Receive messages, with possible losses
         if (rand() % 100 >= lossp)
           ov[i].mergein(rsov[(i+((unsigned int) exp2(l)))%nodes]); // merge from "next"
-        if (rand() % 100 >= lossp) 
+        if (rand() % 100 >= lossp)
           ov[i].mergein(rsov[(i-((unsigned int) exp2(l))+nodes)%nodes]); // merge from "previous"
       }
       // Ring

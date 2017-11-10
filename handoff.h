@@ -3,6 +3,8 @@
 
 #include <unordered_map>
 #include <iostream>
+#include <sstream>
+#include <msgpack.hpp>
 
 using namespace std;
 
@@ -10,12 +12,14 @@ template<typename T>
 class Handoff
 {
 public:
+  typedef pair<pair<int, int>, T> handoff_pair;
+  typedef unordered_map<int, handoff_pair> handoff_map;
   T val;
   int id;
   int sck;
   int dck;
-  unordered_map <int,pair<pair<int,int>,T > > slots;
-  unordered_map <int,pair<pair<int,int>,T > > tokens;
+  handoff_map slots;
+  handoff_map tokens;
 
   Handoff(int i=0, T v=zero())
   {
@@ -25,11 +29,20 @@ public:
     dck=0;
   }
 
+//  void pack(stringstream& ss, int j) {
+//    msgpack::pack(val);
+//    msgpack::pack(id);
+//    msgpack::pack(sck);
+//    msgpack::pack(dck);
+//    msgpack::pack(slots);
+//    msgpack::pack(tokens);
+//  }
+
   friend ostream &operator<<( ostream &output, const Handoff & o)
-  { 
-    output << "id: " << o.id << " val: " << o.val << 
+  {
+    output << "id: " << o.id << " val: " << o.val <<
       " sck: " << o.sck <<" dck: " << o.dck << endl;
-    typename unordered_map<int,pair<pair<int,int>,T> >::const_iterator it;
+    typename handoff_map::const_iterator it;
     for (it = o.slots.begin(); it != o.slots.end(); it++)
     {
       output << "slot: " << it->first << "->([sck:" << it->second.first.first <<
@@ -40,7 +53,7 @@ public:
       output << "token: " << it->first << "->([sck:" << it->second.first.first <<
         ",dck:" << it->second.first.second << "]," << it->second.second << ")" << endl;
     }
-    return output;            
+    return output;
   }
 
   unsigned int numtokens()
@@ -72,36 +85,32 @@ public:
 
   void mergein (Handoff j)
   {
-    typename unordered_map<int,pair<pair<int,int>,T > >::const_iterator its;
-    typename unordered_map<int,pair<pair<int,int>,T > >::const_iterator itt;
-    pair<pair<int,int>,T> token;
-    pair<pair<int,int>,T> slot;
+    typename handoff_map::const_iterator its;
+    typename handoff_map::const_iterator itt;
+    handoff_pair token;
+    handoff_pair slot;
 
     // fill slots
     its=slots.find(j.id);
     if ( its != slots.end() )
     {
       // j \in dom(slots)
-      // cout << "*slot for j*" << endl;
       slot=its->second;
       itt=j.tokens.find(id);
       if ( itt != j.tokens.end() )
       {
         // i \in dom(tokens)
-        // cout << "*token for i*" << endl;
         token=itt->second;
         if ( token.first == slot.first ) // ck match
         {
-          // cout << "*ck match*" << endl;
           val = oplus(val, token.second); // incorporate payload
           slots.erase(its); // slot filled
         }
-        //else cout << "*no ck match*" << endl;
       }
     }
 
     // discard slot
-    its=slots.find(j.id); // needed since could have been erase in previous code 
+    its=slots.find(j.id); // needed since could have been erase in previous code
     if ( its != slots.end() )
     {
       // j \in dom(slots)
@@ -111,7 +120,7 @@ public:
     }
 
     // create slot
-    its=slots.find(j.id); // still needed  
+    its=slots.find(j.id); // still needed
     if ( its == slots.end() )
     {
       // j \not \in dom(slots)
@@ -140,8 +149,6 @@ public:
         if ( token.first.second < slot.first.second )
         {
           tokens.erase(itt);
-//          cout << "ACTIVATED!!" << endl;
-//          exit(1);
         }
       }
       else
@@ -153,7 +160,7 @@ public:
     }
 
     // create token
-    its=j.slots.find(id);  
+    its=j.slots.find(id);
     if ( its != j.slots.end() )
     {
       // i \in dom(j.slots)

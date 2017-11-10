@@ -14,6 +14,17 @@ project(exactly-once)
 # boost
 hunter_add_package(Boost COMPONENTS system thread)
 find_package(Boost CONFIG REQUIRED system thread)
+
+# msgpack
+hunter_add_package(msgpack)
+find_package(msgpack CONFIG REQUIRED)
+
+# build test
 add_executable(simple_test simple_test.cc)
+target_link_libraries(simple_test msgpack::msgpack)
+# build main
 add_executable(main udp.cc main.cc)
-target_link_libraries(main Boost::boost Boost::system Boost::thread)
+target_link_libraries(main Boost::boost
+                           Boost::system
+                           Boost::thread
+                           msgpack::msgpack)

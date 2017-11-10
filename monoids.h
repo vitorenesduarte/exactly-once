@@ -63,7 +63,6 @@ map<K,V> oplus (const map<K,V> & a, const map<K,V> & b)
   return r;
 }
 
-
 float needs (const float & a, const float & b)
 {
   return (b-a+abs(b-a))/4;
@@ -112,8 +111,6 @@ pair<float, float> split(const float & x, const float & h)
   pair<float, float> r;
   r.first=(x-h+abs(x-h))/2;
   r.second=(x+h-abs(x-h))/2;
-//  cout << "split(" << x << "," << h << ")=(" 
-//    << r.first << "," << r.second << ")" << endl;
   return r;
 }
 
@@ -122,8 +119,6 @@ pair<int, int> split(const int & x, const int & h)
   pair<int, int> r;
   r.first=(x-h+abs(x-h))/2;
   r.second=(x+h-abs(x-h))/2;
-//  cout << "split(" << x << "," << h << ")=(" 
-//    << r.first << "," << r.second << ")" << endl;
   return r;
 }
 
