@@ -10,7 +10,6 @@ template<typename T>
 class Handoff
 {
 public:
-
   T val;
   int id;
   int sck;
@@ -73,7 +72,6 @@ public:
 
   void mergein (Handoff j)
   {
-
     typename map<int,pair<pair<int,int>,T > >::const_iterator its;
     typename map<int,pair<pair<int,int>,T > >::const_iterator itt;
     pair<pair<int,int>,T> token;
