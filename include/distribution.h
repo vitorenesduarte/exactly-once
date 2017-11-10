@@ -1,3 +1,6 @@
+#ifndef __DISTRIBUTION_H_INCLUDED__
+#define __DISTRIBUTION_H_INCLUDED__
+
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -52,3 +55,5 @@ private:
   void handle_receive(const boost::system::error_code& error,
       size_t bytes_transferred);
 };
+
+#endif
