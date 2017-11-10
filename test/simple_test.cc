@@ -1,6 +1,6 @@
 #include <assert.h>
-#include "monoids.h"
-#include "handoff.h"
+#include "../include/monoids.h"
+#include "../include/handoff.h"
 
 using namespace std;
 

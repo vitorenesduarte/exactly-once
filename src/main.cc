@@ -1,4 +1,4 @@
-#include "distribution.h"
+#include "../include/distribution.h"
 
 using namespace std;
 

@@ -20,10 +20,10 @@ hunter_add_package(msgpack)
 find_package(msgpack CONFIG REQUIRED)
 
 # build test
-add_executable(simple_test simple_test.cc)
+add_executable(simple_test test/simple_test.cc)
 target_link_libraries(simple_test msgpack::msgpack)
 # build main
-add_executable(main distribution.cc main.cc)
+add_executable(main src/distribution.cc src/main.cc)
 target_link_libraries(main Boost::boost
                            Boost::system
                            Boost::thread
