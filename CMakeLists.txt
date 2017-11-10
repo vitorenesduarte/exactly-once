@@ -12,9 +12,8 @@ HunterGate(
 project(exactly-once)
 
 # boost
-hunter_add_package(Boost COMPONENTS system)
-find_package(Boost CONFIG REQUIRED system)
+hunter_add_package(Boost COMPONENTS system thread)
+find_package(Boost CONFIG REQUIRED system thread)
 add_executable(simple_test simple_test.cc)
 add_executable(main main.cc)
-target_link_libraries(main Boost::boost
-                           Boost::system)
+target_link_libraries(main Boost::boost Boost::system Boost::thread)

@@ -5,75 +5,99 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 
 using boost::asio::ip::udp;
+using namespace std;
 
-std::string make_daytime_string()
+class UDPClient
 {
-  using namespace std; // For time_t, time and ctime;
-  time_t now = time(0);
-  return ctime(&now);
-}
+private:
+    boost::asio::io_service io_service_;
+    udp::socket socket_;
+    udp::endpoint endpoint_;
 
-class udp_server
-{
 public:
-  udp_server(boost::asio::io_service& io_service)
-    : socket_(io_service, udp::endpoint(udp::v4(), 13))
+    UDPClient(const std::string& host, const std::string& port)
+      : socket_(io_service_, udp::endpoint(udp::v4(), 0))
+    {
+        udp::resolver resolver(io_service_);
+        udp::resolver::query query(udp::v4(), host, port);
+        udp::resolver::iterator iter = resolver.resolve(query);
+        endpoint_ = *iter;
+    }
+
+    ~UDPClient()
+    {
+        socket_.close();
+    }
+
+    void send(const std::string& msg) {
+        socket_.send_to(boost::asio::buffer(msg, msg.size()), endpoint_);
+    }
+};
+
+class UDPServer
+{
+private:
+  boost::asio::io_service io_service_;
+  boost::thread thread_;
+  udp::socket socket_;
+  udp::endpoint remote_endpoint_;
+  // FIXME 1024
+  boost::array<char, 1024> recv_buffer_;
+
+public:
+  UDPServer(const int port)
+    : socket_(io_service_, udp::endpoint(udp::v4(), port)) { }
+
+  void spawn()
   {
     start_receive();
+    thread_ = boost::thread(
+      boost::bind(&boost::asio::io_service::run, &io_service_)
+    );
   }
 
 private:
-  udp::socket socket_;
-  udp::endpoint remote_endpoint_;
-  boost::array<char, 1> recv_buffer_;
-
   void start_receive()
   {
     socket_.async_receive_from(
-        boost::asio::buffer(recv_buffer_), remote_endpoint_,
-        boost::bind(&udp_server::handle_receive, this,
+        boost::asio::buffer(recv_buffer_),
+        remote_endpoint_,
+        boost::bind(
+          &UDPServer::handle_receive,
+          this,
           boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred));
+          boost::asio::placeholders::bytes_transferred
+        )
+    );
   }
 
   void handle_receive(const boost::system::error_code& error,
-      std::size_t /*bytes_transferred*/)
+      size_t /*bytes_transferred*/)
   {
-    if (!error || error == boost::asio::error::message_size)
+    if (error && error != boost::asio::error::message_size)
     {
-      boost::shared_ptr<std::string> message(
-          new std::string(make_daytime_string()));
-
-      socket_.async_send_to(boost::asio::buffer(*message), remote_endpoint_,
-          boost::bind(&udp_server::handle_send, this, message,
-            boost::asio::placeholders::error,
-            boost::asio::placeholders::bytes_transferred));
-
-      start_receive();
+      throw boost::system::system_error(error);
     }
-  }
 
-  void handle_send(boost::shared_ptr<std::string> /*message*/,
-      const boost::system::error_code& /*error*/,
-      std::size_t /*bytes_transferred*/)
-  {
+    string message(recv_buffer_.begin(), recv_buffer_.end());
+    socket_.send_to(boost::asio::buffer(message), remote_endpoint_);
+
+    start_receive();
   }
 };
 
 int main()
 {
-  try
-  {
-    boost::asio::io_service io_service;
-    udp_server server(io_service);
-    io_service.run();
-  }
-  catch (std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
+    UDPServer server(3000);
+    server.spawn();
+
+    UDPClient client("localhost", "3000");
+    client.send("OLAAA");
+
+    sleep(1000);
 
   return 0;
 }
