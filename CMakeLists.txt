@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 
+# use C++ 11
+set (CMAKE_CXX_STANDARD 11)
+
 include("cmake/HunterGate.cmake")
 HunterGate(
     URL "https://github.com/ruslo/hunter/archive/v0.19.145.tar.gz"
@@ -8,9 +11,8 @@ HunterGate(
 
 project(exactly-once)
 
-# libevent
-hunter_add_package(Libevent)
-find_package(Libevent CONFIG REQUIRED)
-add_executable(main handoff.cc)
-target_link_libraries(main Libevent::event_core
-                           Libevent::event_extra)
+# boost
+#hunter_add_package(Boost)
+#find_package(Boost CONFIG REQUIRED)
+add_executable(main tests.cc)
+#target_link_libraries(main Boost::boost)
