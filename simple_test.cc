@@ -6,8 +6,6 @@ using namespace std;
 
 void test1()
 {
-  cout << "Test 1..." << endl;
-
   Handoff<int> o1(1);
   Handoff<int> o2(2);
 
@@ -34,12 +32,12 @@ void test1()
   o2.mergein(o1);
   assert (o1.val == 6 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
+
+  cout << "Test 1 ok!" << endl;
 }
 
 void test2()
 {
-  cout << "Test 2..." << endl;
-
   // replay resilience 
   Handoff<int> ov[4];
   Handoff<int> oldov[4];
@@ -79,12 +77,12 @@ void test2()
   {
     assert (ov[i].val == 15);
   }
+
+  cout << "Test 2 ok!" << endl;
 }
 
 void test3()
 {
-  cout << "Test 3..." << endl;
-
   // map monoid
   map<int,float> a=zero<int,float>();
   map<int,float> b=zero<int,float>();
@@ -103,6 +101,8 @@ void test3()
   p=split(a,d);
   assert(p.first[0] == 5 && p.first[1] == 2.5 && p.first[2] == 0);
   assert(p.second[0] == 0 && p.second[1] == 2.5 && p.second[2] == 0);
+
+  cout << "Test 3 ok!" << endl;
 }
 
 void gplot1()
