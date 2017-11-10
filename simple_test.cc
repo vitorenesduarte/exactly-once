@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "monoids.h"
 #include "handoff.h"
 
@@ -5,89 +6,85 @@ using namespace std;
 
 void test1()
 {
+  cout << "Test 1..." << endl;
+
   Handoff<int> o1(1);
   Handoff<int> o2(2);
 
+  // init
   o1.plus(4); o1.dck=20;
   o2.plus(8); o2.sck=10;
-  cout << o1 << endl;
-  cout << o2 << endl;
+
+  // merge 1 <- 2
   o1.mergein(o2);
-  cout << "--- 1 <- 2 ---" << endl;
-  cout << o1 << endl;
-  cout << o2 << endl;
+  assert (o1.val == 4 && o1.sck == 0 && o1.dck == 21);
+  assert (o2.val == 8 && o2.sck == 10 && o2.dck == 0);
+
+  // merge 1 -> 2
   o2.mergein(o1);
-  cout << "--- 2 <- 1 ---" << endl;
-  cout << o1 << endl;
-  cout << o2 << endl;
+  assert (o1.val == 4 && o1.sck == 0 && o1.dck == 21);
+  assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
+
+  // merge 1 <- 2
   o1.mergein(o2);
-  cout << "--- 1 <- 2 ---" << endl;
-  cout << o1 << endl;
-  cout << o2 << endl;
+  assert (o1.val == 6 && o1.sck == 0 && o1.dck == 21);
+  assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
+
+  // merge 1 -> 2
   o2.mergein(o1);
-  cout << "--- 2 <- 1 ---" << endl;
-  cout <<  o1 << endl;
-  cout <<  o2 << endl;
+  assert (o1.val == 6 && o1.sck == 0 && o1.dck == 21);
+  assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
 }
 
 void test2()
 {
+  cout << "Test 2..." << endl;
+
   // replay resilience 
   Handoff<int> ov[4];
   Handoff<int> oldov[4];
-  cout << "--- Start ----" << endl;
+
+  // init
   for (int i=0; i<4; i++)
   {
     ov[i].val=i*10;
     ov[i].id=i;
     oldov[i]=ov[i];
-    cout << ov[i] << endl;;
   }
   for (int i=0; i<4*100; i++)
   {
-//    cout << i % 4 << "<->" << (i+1)%4 << endl;
-    cout << i % 4 << "<-" << (i+1)%4 << endl;
+    // merge i % 4 <- (i + 1) % 4
     ov[i%4].mergein(ov[(i+1)%4]);
-    cout << ov[i % 4] << endl << ov[(i+1) % 4] << endl;
-    cout << i % 4 << "->" << (i+1)%4 << endl;
+    
+    // merge i % 4 -> (i + 1) % 4
     ov[(i+1)%4].mergein(ov[i%4]);
-    cout << ov[i % 4] << endl << ov[(i+1) % 4] << endl;
     
     // not so random atacker replay
-    if (rand() % 20 == 0)
+    if (rand() % 2 == 0)
+    {
       oldov[i%4]=ov[i%4]; // store fresher old state
-    if (rand() % 10 == 0)
+    }
+    
+    if (rand() % 2 == 0)
     { 
-      cout << "*replay ->*" << endl;
       ov[i%4].mergein(oldov[(i+1)%4]); // merge old state ->
     }
-    if (rand() % 4 == 0)
+
+    if (rand() % 2 == 0)
     {
-      cout << "*replay <-*" << endl;
       ov[(i+1)%4].mergein(oldov[i%4]); // merge old state  <-
     }
-
-
-    cout << "--- Run ----" << endl;
-    for (int i=0; i<4; i++)
-    {
-      cout << ov[i] << endl;;
-    }
   }
   for (int i=0; i<4; i++)
   {
-    cout << "--- End ----" << endl;
-    cout << ov[i] << endl;;
-  }
-  for (int i=0; i<4; i++)
-  {
-    cout << "--- Old at End ----" << endl;
-    cout << oldov[i] << endl;;
+    assert (ov[i].val == 15);
   }
 }
 
 void test3()
 {
+  cout << "Test 3..." << endl;
+
   // map monoid
   map<int,float> a=zero<int,float>();
   map<int,float> b=zero<int,float>();
@@ -95,24 +92,17 @@ void test3()
   a[1]=5;
   b[1]=10;
   b[2]=10;
+
   map<int,float> c=oplus(a,b);
-  cout << c[0] << endl;
-  cout << c[1] << endl;
-  cout << c[2] << endl;
+  assert(c[0] == 5 && c[1] == 15 && c[2] == 10);
+
   map<int,float> d=needs(a,b);
-  cout << d[0] << endl;
-  cout << d[1] << endl;
-  cout << d[2] << endl;
+  assert(d[0] == 0 && d[1] == 2.5 && d[2] == 5);
+
   pair<map<int,float>,map<int,float> > p;
   p=split(a,d);
-  cout << "--------" << endl;
-  cout << p.first[0] << endl;
-  cout << p.first[1] << endl;
-  cout << p.first[2] << endl;
-  cout << "--------" << endl;
-  cout << p.second[0] << endl;
-  cout << p.second[1] << endl;
-  cout << p.second[2] << endl;
+  assert(p.first[0] == 5 && p.first[1] == 2.5 && p.first[2] == 0);
+  assert(p.second[0] == 0 && p.second[1] == 2.5 && p.second[2] == 0);
 }
 
 void gplot1()
@@ -198,6 +188,6 @@ int main()
    test1();
    test2();
    test3();
-   gplot1();
+//   gplot1();
 }
 
