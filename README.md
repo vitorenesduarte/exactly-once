@@ -10,9 +10,13 @@ $ export HUNTER_ROOT=~/.hunter
 $ make
 ```
 
-### Run
+### Run echo server
 ```bash
 $ _builds/main
+```
+
+```bash
+$ nc -4u localhost 3000
 ```
 
 ### Run tests
