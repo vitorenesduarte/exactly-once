@@ -23,7 +23,7 @@ find_package(msgpack CONFIG REQUIRED)
 add_executable(simple_test simple_test.cc)
 target_link_libraries(simple_test msgpack::msgpack)
 # build main
-add_executable(main udp.cc main.cc)
+add_executable(main distribution.cc main.cc)
 target_link_libraries(main Boost::boost
                            Boost::system
                            Boost::thread

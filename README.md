@@ -25,4 +25,5 @@ $ _builds/simple_test
 ```
 
 ### Assumptions
+- ids are integers
 - max UDP datagram size is 2^16 = 65536
