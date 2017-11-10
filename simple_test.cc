@@ -4,6 +4,15 @@
 
 using namespace std;
 
+template<typename T>
+Handoff<T> sub(Handoff<T>& h, int id) {
+  Handoff<T> res;
+  stringstream ss;
+  h.pack(ss, id);
+  res.unpack(ss);
+  return res;
+}
+
 void test1()
 {
   Handoff<int> o1(1);
@@ -14,22 +23,22 @@ void test1()
   o2.plus(8); o2.sck=10;
 
   // merge 1 <- 2
-  o1.mergein(o2);
+  o1.mergein(sub(o2, 1));
   assert (o1.val == 4 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 8 && o2.sck == 10 && o2.dck == 0);
 
   // merge 1 -> 2
-  o2.mergein(o1);
+  o2.mergein(sub(o1, 2));
   assert (o1.val == 4 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
 
   // merge 1 <- 2
-  o1.mergein(o2);
+  o1.mergein(sub(o2, 1));
   assert (o1.val == 6 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
 
   // merge 1 -> 2
-  o2.mergein(o1);
+  o2.mergein(sub(o1, 2));
   assert (o1.val == 6 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
 
@@ -51,26 +60,28 @@ void test2()
   }
   for (int i=0; i<4*100; i++)
   {
-    // merge i % 4 <- (i + 1) % 4
-    ov[i%4].mergein(ov[(i+1)%4]);
+    int a = i % 4;
+    int b = (i + 1) % 4;
+    // merge a <- b
+    ov[a].mergein(sub(ov[b], a));
 
-    // merge i % 4 -> (i + 1) % 4
-    ov[(i+1)%4].mergein(ov[i%4]);
+    // merge a -> b
+    ov[b].mergein(sub(ov[a], b));
 
     // not so random atacker replay
     if (rand() % 2 == 0)
     {
-      oldov[i%4]=ov[i%4]; // store fresher old state
+      oldov[a]=ov[a]; // store fresher old state
     }
 
     if (rand() % 2 == 0)
     {
-      ov[i%4].mergein(oldov[(i+1)%4]); // merge old state ->
+      ov[a].mergein(sub(oldov[b], a)); // merge old state ->
     }
 
     if (rand() % 2 == 0)
     {
-      ov[(i+1)%4].mergein(oldov[i%4]); // merge old state  <-
+      ov[b].mergein(sub(oldov[a], b)); // merge old state  <-
     }
   }
   for (int i=0; i<4; i++)
@@ -185,9 +196,9 @@ void gplot1()
 
 int main()
 {
-   test1();
-   test2();
-   test3();
-//   gplot1();
+  test1();
+  test2();
+  test3();
+//  gplot1();
 }
 
