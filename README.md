@@ -10,20 +10,20 @@ $ export HUNTER_ROOT=~/.hunter
 $ make
 ```
 
+### Run tests
+```bash
+$ make test
+```
+
 ### Run echo server
 ```bash
-$ _builds/main
+$ bin/main
 ```
 
 ```bash
 $ nc -4u localhost 3000
 ```
 
-### Run tests
-```bash
-$ _builds/simple_test
-```
-
 ### Assumptions
 - ids are integers
-- max UDP datagram size is 2^16 = 65536
+- max UDP datagram size is `2^16 = 65536`

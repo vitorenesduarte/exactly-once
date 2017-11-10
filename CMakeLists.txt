@@ -11,6 +11,9 @@ HunterGate(
 
 project(exactly-once)
 
+# binaries in bin folder
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin/)
+
 # boost
 hunter_add_package(Boost COMPONENTS system thread)
 find_package(Boost CONFIG REQUIRED system thread)

@@ -11,3 +11,6 @@ deps:
 build: deps
 	cmake --build _builds
 	#cmake --build _builds --config Debug
+
+test: build
+	bin/simple_test
