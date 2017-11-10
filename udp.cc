@@ -4,7 +4,7 @@ using boost::asio::ip::udp;
 using namespace std;
 
 // UDPClient
-UDPClient::UDPClient(const std::string& host, const std::string& port)
+UDPClient::UDPClient(const string& host, const string& port)
   : socket_(io_service_, udp::endpoint(udp::v4(), 0))
 {
   udp::resolver resolver(io_service_);
@@ -18,13 +18,13 @@ UDPClient::~UDPClient()
   socket_.close();
 }
 
-void UDPClient::send(const std::string& msg) {
+void UDPClient::send(const string& msg) {
   socket_.send_to(boost::asio::buffer(msg, msg.size()), endpoint_);
 }
 
 // UDPServer
-UDPServer::UDPServer(const int port)
-  : socket_(io_service_, udp::endpoint(udp::v4(), port)) { }
+UDPServer::UDPServer(const string& port)
+  : socket_(io_service_, udp::endpoint(udp::v4(), stoi(port))) { }
 
 void UDPServer::spawn()
 {

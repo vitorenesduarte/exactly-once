@@ -18,9 +18,9 @@ private:
     udp::endpoint endpoint_;
 
 public:
-    UDPClient(const std::string& host, const std::string& port);
+    UDPClient(const string& host, const string& port);
     ~UDPClient();
-    void send(const std::string& msg);
+    void send(const string& msg);
 };
 
 class UDPServer
@@ -33,7 +33,7 @@ private:
   boost::array<char, MAX_DATAGRAM_SIZE> recv_buffer_;
 
 public:
-  UDPServer(const int port);
+  UDPServer(const string& port);
   void spawn();
 
 private:
