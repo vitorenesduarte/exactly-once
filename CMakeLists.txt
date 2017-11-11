@@ -26,7 +26,7 @@ find_package(msgpack CONFIG REQUIRED)
 add_executable(simple_test test/simple_test.cc)
 target_link_libraries(simple_test msgpack::msgpack)
 # build main
-add_executable(main src/distribution.cc src/main.cc)
+add_executable(main src/peer_service.cc src/main.cc)
 target_link_libraries(main Boost::boost
                            Boost::system
                            Boost::thread

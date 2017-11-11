@@ -1,14 +1,10 @@
-#include "../include/distribution.h"
+#include "../include/peer_service.h"
 
 using namespace std;
 
 int main()
 {
-    UDPServer server("3000");
-
-    UDPClient client("localhost", "3000");
-    client.send("OLAAA");
-
+    PeerService(3000);
     sleep(1000);
 
   return 0;
