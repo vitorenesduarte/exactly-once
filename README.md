@@ -1,6 +1,9 @@
 # exactly-once
 
 ### Requirements
+
+- [CMake](https://cmake.org/)
+
 ```bash
 $ export HUNTER_ROOT=~/.hunter
 ```
