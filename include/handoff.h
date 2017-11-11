@@ -29,57 +29,6 @@ public:
     dck=0;
   }
 
-  handoff_map sub_map(handoff_map& m, int j) {
-    handoff_map sub;
-
-    typename handoff_map::const_iterator its;
-    its=m.find(j);
-
-    if ( its != m.end() )
-    {
-      sub[j] = its->second;
-    }
-
-    return sub;
-  }
-
-  void pack(stringstream& ss, int j) {
-    msgpack::pack(ss, val);
-    msgpack::pack(ss, id);
-    msgpack::pack(ss, sck);
-    msgpack::pack(ss, dck);
-    msgpack::pack(ss, sub_map(slots, j));
-    msgpack::pack(ss, sub_map(tokens, j));
-  }
-
-  void unpack(stringstream& ss) {
-    std::size_t offset = 0;
-    val = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
-    id = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
-    sck = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
-    dck = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
-    slots = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<decltype(slots)>();
-    tokens = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<decltype(tokens)>();
-  }
-
-  friend ostream &operator<<( ostream &output, const Handoff & o)
-  {
-    output << "id: " << o.id << " val: " << o.val <<
-      " sck: " << o.sck <<" dck: " << o.dck << endl;
-    typename handoff_map::const_iterator it;
-    for (it = o.slots.begin(); it != o.slots.end(); it++)
-    {
-      output << "slot: " << it->first << "->([sck:" << it->second.first.first <<
-        ",dck:" << it->second.first.second << "]," << it->second.second << ")" << endl;
-    }
-    for (it = o.tokens.begin(); it != o.tokens.end(); it++)
-    {
-      output << "token: " << it->first << "->([sck:" << it->second.first.first <<
-        ",dck:" << it->second.first.second << "]," << it->second.second << ")" << endl;
-    }
-    return output;
-  }
-
   unsigned int numtokens()
   {
     return tokens.size();
@@ -202,6 +151,70 @@ public:
 
   }
 
+  friend ostream &operator<<( ostream &output, const Handoff & o)
+  {
+    output << "id: " << o.id << " val: " << o.val <<
+      " sck: " << o.sck <<" dck: " << o.dck << endl;
+    typename handoff_map::const_iterator it;
+    for (it = o.slots.begin(); it != o.slots.end(); it++)
+    {
+      output << "slot: " << it->first << "->([sck:" << it->second.first.first <<
+        ",dck:" << it->second.first.second << "]," << it->second.second << ")" << endl;
+    }
+    for (it = o.tokens.begin(); it != o.tokens.end(); it++)
+    {
+      output << "token: " << it->first << "->([sck:" << it->second.first.first <<
+        ",dck:" << it->second.first.second << "]," << it->second.second << ")" << endl;
+    }
+    return output;
+  }
+
+  void pack(stringstream& ss)
+  {
+    msgpack::pack(ss, val);
+    msgpack::pack(ss, id);
+    msgpack::pack(ss, sck);
+    msgpack::pack(ss, dck);
+    msgpack::pack(ss, slots);
+    msgpack::pack(ss, tokens);
+  }
+
+  void pack(stringstream& ss, int j)
+  {
+    msgpack::pack(ss, val);
+    msgpack::pack(ss, id);
+    msgpack::pack(ss, sck);
+    msgpack::pack(ss, dck);
+    msgpack::pack(ss, sub_map(slots, j));
+    msgpack::pack(ss, sub_map(tokens, j));
+  }
+
+  void unpack(stringstream& ss)
+  {
+    std::size_t offset = 0;
+    val = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
+    id = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
+    sck = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
+    dck = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
+    slots = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<decltype(slots)>();
+    tokens = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<decltype(tokens)>();
+  }
+
+private:
+  handoff_map sub_map(handoff_map& m, int j)
+  {
+    handoff_map sub;
+
+    typename handoff_map::const_iterator its;
+    its=m.find(j);
+
+    if ( its != m.end() )
+    {
+      sub[j] = its->second;
+    }
+
+    return sub;
+  }
 };
 
 #endif

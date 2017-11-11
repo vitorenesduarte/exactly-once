@@ -24,7 +24,7 @@ private:
 public:
   UDPClient(const string& host, const int& port);
   ~UDPClient();
-  void send(const string& msg);
+  void send(const stringstream& msg);
   void close();
 };
 
@@ -50,7 +50,7 @@ class PeerService
 {
 private:
   UDPServer server_;
-  unordered_map<int, UDPClient> peers_;
+  unordered_map<int, UDPClient*> peers_;
 
 public:
   PeerService(const int& port);

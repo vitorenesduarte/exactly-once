@@ -18,9 +18,12 @@ UDPClient::~UDPClient()
   this->close();
 }
 
-void UDPClient::send(const string& msg)
+void UDPClient::send(const stringstream& ss)
 {
-  socket_.send_to(boost::asio::buffer(msg, msg.size()), endpoint_);
+  socket_.send_to(
+      boost::asio::buffer(ss.str().data(), ss.str().size()),
+      endpoint_
+  );
 }
 
 void UDPClient::close()
@@ -61,6 +64,7 @@ void UDPServer::handle_receive(const boost::system::error_code& error,
   }
 
   string message(recv_buffer_.begin(), bytes_transferred);
+  cout << message << endl;
   socket_.send_to(boost::asio::buffer(message), endpoint_);
 
   start_receive();
@@ -73,5 +77,11 @@ PeerService::PeerService(const int& port)
 PeerService::~PeerService()
 {
   for(auto it = peers_.begin(); it != peers_.end(); ++it)
-    it->second.close();
+    it->second->close();
+}
+
+void PeerService::join(const int& id, const string& host, const int& port)
+{
+  UDPClient* client = new UDPClient(host, port);
+  peers_[id] = client;
 }
