@@ -4,7 +4,7 @@ using namespace std;
 
 int main()
 {
-    PeerService(3000);
+    PeerService ps(3000);
 
     // UDPClient client("localhost", 3000);
     // stringstream ss;
