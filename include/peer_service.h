@@ -77,24 +77,22 @@ void *reader(void *in) {
   struct sockaddr_in remote_addr;
 
   while(1) {
-    int len = sizeof(remote_addr);
-    r = recvfrom(
+    int ras = sizeof(remote_addr);
+    int len = recvfrom(
       sock,
       buf,
       MAX_DATAGRAM_SIZE,
       0,
       (struct sockaddr *) &remote_addr,
-      (socklen_t *) &len
+      (socklen_t *) &ras
     );
-    if(r == -1) diep("Error reading from socket");
+    if(len == -1) diep("Error reading from socket");
 
     //char *ip_from = inet_ntoa(remote_addr.sin_addr);
     //int port_from = ntohs(remote_addr.sin_port);
     //cout << "Received " << buf << " from "
     //     << ip_from << ":" << port_from << endl;
-    cout << "BEFORE APPLY" << endl;
     args->w->apply(buf, len);
-    cout << "AFTER APPLY" << endl;
   }
 }
 

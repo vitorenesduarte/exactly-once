@@ -9,14 +9,14 @@ public:
   HandoffWrapper(int* x) : Wrapper(x) { }
   ~HandoffWrapper() { }
   void apply(char* buf, int len) {
-    cout << *t_ << endl;
-    cout << buf << endl;
-    cout << len << endl;
+    cout << "T: " << *t_ << endl;
+    cout << "BUF: " << buf << endl;
+    cout << "LEN: " << len << endl;
   }
 };
 
 int main() {
-  int x = 3;
+  int x = 17;
   Wrapper<int>* wrapper = new HandoffWrapper(&x);
   peer_service(3000, wrapper);
   sleep(1000);
