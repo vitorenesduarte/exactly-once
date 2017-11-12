@@ -18,7 +18,7 @@ $ make
 $ make test
 ```
 
-### Run echo server
+### Run server
 ```bash
 $ bin/main
 ```

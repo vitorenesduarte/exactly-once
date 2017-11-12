@@ -40,15 +40,20 @@ template<typename T>
 void *reader(void *in);
 
 template<typename T>
-void peer_service(const int& port, Wrapper<T>* w) {
-  pthread_t tr;
-  ReaderArgs<T>* args = new ReaderArgs<T>;
-  args->port = port;
-  args->w = w;
+class PeerService
+{
+public:
+  PeerService() { }
+  void start(const int& port, Wrapper<T>* w) {
+    pthread_t tr;
+    ReaderArgs<T>* args = new ReaderArgs<T>;
+    args->port = port;
+    args->w = w;
 
-  int r = pthread_create(&tr, NULL, reader<T>, (void *) args);
-  if(r) diep("Error creating reader thread");
-}
+    int r = pthread_create(&tr, NULL, reader<T>, (void *) args);
+    if(r) diep("Error creating reader thread");
+  }
+};
 
 template<typename T>
 void *reader(void *in) {

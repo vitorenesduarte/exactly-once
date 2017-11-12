@@ -17,7 +17,8 @@ public:
 int main() {
   int x = 17;
   Wrapper<int>* wrapper = new HandoffWrapper(&x);
-  peer_service(3000, wrapper);
+  PeerService<int> ps;
+  ps.start(3000, wrapper);
   sleep(1000);
   return 0;
 }
