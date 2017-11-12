@@ -4,13 +4,25 @@
 #include <unordered_map>
 #include <iostream>
 #include <sstream>
+#include <mutex>
 #include <msgpack.hpp>
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::stringstream;
+using std::ostream;
+using std::unordered_map;
 
 template<typename T>
 class Handoff
 {
+  using Lock = std::mutex;
+  using ReadLock = std::unique_lock<Lock>;
+  using WriteLock = std::unique_lock<Lock>;
+
+private:
+  mutable Lock mtx;
+
 public:
   typedef pair<pair<int, int>, T> handoff_pair;
   typedef unordered_map<int, handoff_pair> handoff_map;
@@ -29,6 +41,66 @@ public:
     dck=0;
   }
 
+  // move constructor
+  Handoff(Handoff<T>&& h)
+  {
+    WriteLock rhs_lk(h.mtx);
+    val=std::move(h.val);
+    id=std::move(h.id);
+    sck=std::move(h.sck);
+    dck=std::move(h.dck);
+    slots=std::move(h.slots);
+    tokens=std::move(h.tokens);
+  }
+
+  // copy constructor
+  Handoff(const Handoff<T>& h)
+  {
+    ReadLock rhs_lk(h.mtx);
+    val=h.val;
+    id=h.id;
+    sck=h.sck;
+    dck=h.dck;
+    slots=h.slots;
+    tokens=h.tokens;
+  }
+
+  // move assignment
+  Handoff& operator=(Handoff<T>&& h)
+  {
+    if (this != &h)
+    {
+      WriteLock lhs_lk(mtx, std::defer_lock);
+      WriteLock rhs_lk(h.mtx, std::defer_lock);
+      std::lock(lhs_lk, rhs_lk);
+      val=std::move(h.val);
+      id=std::move(h.id);
+      sck=std::move(h.sck);
+      dck=std::move(h.dck);
+      slots=std::move(h.slots);
+      tokens=std::move(h.tokens);
+    }
+    return *this;
+	}
+
+  // copy assignment
+  Handoff& operator=(Handoff<T>& h)
+  {
+    if (this != &h)
+    {
+      WriteLock lhs_lk(mtx, std::defer_lock);
+      WriteLock rhs_lk(h.mtx, std::defer_lock);
+      std::lock(lhs_lk, rhs_lk);
+      val=h.val;
+      id=h.id;
+      sck=h.sck;
+      dck=h.dck;
+      slots=h.slots;
+      tokens=h.tokens;
+    }
+    return *this;
+	}
+
   unsigned int numtokens()
   {
     return tokens.size();
@@ -44,20 +116,25 @@ public:
     return val;
   }
 
-  void plus(T v)
+  void plus(T t)
   {
-    val = oplus(val, v);
+    mtx.lock();
+    val = oplus(val, t);
+    mtx.unlock();
   }
 
-  T minus(T h)
+  T minus(T t)
   {
-    pair<T, T> p= split(val,h);
-    val=p.first;
+    mtx.lock();
+    pair<T, T> p = split(val, t);
+    val = p.first;
+    mtx.unlock();
     return p.second;
   }
 
-  void mergein (Handoff j)
+  void merge(Handoff j)
   {
+    mtx.lock();
     typename handoff_map::const_iterator its;
     typename handoff_map::const_iterator itt;
     handoff_pair token;
@@ -149,6 +226,8 @@ public:
       }
     }
 
+    mtx.unlock();
+
   }
 
   friend ostream &operator<<( ostream &output, const Handoff & o)
@@ -171,33 +250,44 @@ public:
 
   void pack(stringstream& ss)
   {
+    mtx.lock();
     msgpack::pack(ss, val);
     msgpack::pack(ss, id);
     msgpack::pack(ss, sck);
     msgpack::pack(ss, dck);
     msgpack::pack(ss, slots);
     msgpack::pack(ss, tokens);
+    mtx.unlock();
   }
 
   void pack(stringstream& ss, int j)
   {
+    mtx.lock();
     msgpack::pack(ss, val);
     msgpack::pack(ss, id);
     msgpack::pack(ss, sck);
     msgpack::pack(ss, dck);
     msgpack::pack(ss, sub_map(slots, j));
     msgpack::pack(ss, sub_map(tokens, j));
+    mtx.unlock();
+  }
+
+  void unpack(const char* buf, int len)
+  {
+    mtx.lock();
+    std::size_t offset = 0;
+    val = msgpack::unpack(buf, len, offset).get().as<int>();
+    id = msgpack::unpack(buf, len, offset).get().as<int>();
+    sck = msgpack::unpack(buf, len, offset).get().as<int>();
+    dck = msgpack::unpack(buf, len, offset).get().as<int>();
+    slots = msgpack::unpack(buf, len, offset).get().as<decltype(slots)>();
+    tokens = msgpack::unpack(buf, len, offset).get().as<decltype(tokens)>();
+    mtx.unlock();
   }
 
   void unpack(stringstream& ss)
   {
-    std::size_t offset = 0;
-    val = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
-    id = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
-    sck = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
-    dck = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<int>();
-    slots = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<decltype(slots)>();
-    tokens = msgpack::unpack(ss.str().data(), ss.str().size(), offset).get().as<decltype(tokens)>();
+    unpack(ss.str().c_str(), ss.str().size());
   }
 
 private:
