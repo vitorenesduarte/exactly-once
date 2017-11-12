@@ -28,14 +28,12 @@ void peer_service(const int& port) {
   ReaderArgs* args = new ReaderArgs;
   args->port = port;
 
-  cout << "ATRR " << args->port << endl;
   int r = pthread_create(&tr, NULL, reader, (void *) args);
   if(r) diep("Error creating reader thread");
 }
 
 void *reader(void *in) {
   struct ReaderArgs* args = (ReaderArgs*) in;
-  cout << "READER STARTED ON " << args->port << endl;
   int r;
   // open socket
   int sock;
@@ -61,7 +59,6 @@ void *reader(void *in) {
 
   while(1) {
     int len = sizeof(remote_addr);
-    cout << "Waiting" << endl;
     r = recvfrom(
       sock,
       buf,

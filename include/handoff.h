@@ -13,6 +13,11 @@ using std::stringstream;
 using std::ostream;
 using std::unordered_map;
 
+/*
+ For info no copy/move constructor/assignment see:
+   https://stackoverflow.com/a/29988626/4262469
+*/
+
 template<typename T>
 class Handoff
 {
