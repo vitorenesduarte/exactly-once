@@ -1,87 +1,81 @@
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <pthread.h>
 #include "../include/peer_service.h"
 
-using boost::asio::ip::udp;
-using namespace std;
+using std::cout;
+using std::cerr;
+using std::endl;
+using std::string;
+using std::stringstream;
 
-// UDPClient
-UDPClient::UDPClient(const string& host, const int& port)
-  : socket_(io_service_, udp::endpoint(udp::v4(), 0))
-{
-  udp::resolver resolver(io_service_);
-  udp::resolver::query query(udp::v4(), host, to_string(port));
-  udp::resolver::iterator iter = resolver.resolve(query);
-  endpoint_ = *iter;
+const unsigned int MAX_DATAGRAM_SIZE = 65536;
+
+struct ReaderArgs {
+  int port;
+};
+
+void diep(string msg) {
+  cerr << msg << endl;
+  exit(1);
+}
+void *reader(void *in);
+
+void peer_service(const int& port) {
+  pthread_t tr;
+  ReaderArgs* args = new ReaderArgs;
+  args->port = port;
+
+  cout << "ATRR " << args->port << endl;
+  int r = pthread_create(&tr, NULL, reader, (void *) args);
+  if(r) diep("Error creating reader thread");
 }
 
-UDPClient::~UDPClient()
-{
-  this->close();
-}
+void *reader(void *in) {
+  struct ReaderArgs* args = (ReaderArgs*) in;
+  cout << "READER STARTED ON " << args->port << endl;
+  int r;
+  // open socket
+  int sock;
+  if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+    diep("Error creating socket");
 
-void UDPClient::send(const stringstream& ss)
-{
-  socket_.send_to(
-      boost::asio::buffer(ss.str().data(), ss.str().size()),
-      endpoint_
+  // bind ip address
+  struct sockaddr_in local_addr;
+  memset((char *) &local_addr, 0, sizeof(local_addr));
+  local_addr.sin_family = AF_INET;
+  local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  local_addr.sin_port = htons(args->port);
+  r = bind(
+    sock,
+    (struct sockaddr *) &local_addr,
+    sizeof(local_addr)
   );
-}
+  if(r == -1) diep("Error binding address");
 
-void UDPClient::close()
-{
-  socket_.close();
-}
+  // listen new messages forever
+  char buf[MAX_DATAGRAM_SIZE];
+  struct sockaddr_in remote_addr;
 
-// UDPServer
-UDPServer::UDPServer(const int& port)
-  : socket_(io_service_, udp::endpoint(udp::v4(), port))
-{
-  start_receive();
-  thread_ = boost::thread(
-    boost::bind(&boost::asio::io_service::run, &io_service_)
-  );
-}
+  while(1) {
+    int len = sizeof(remote_addr);
+    cout << "Waiting" << endl;
+    r = recvfrom(
+      sock,
+      buf,
+      MAX_DATAGRAM_SIZE,
+      0,
+      (struct sockaddr *) &remote_addr,
+      (socklen_t *) &len
+    );
+    if(r == -1) diep("Error reading from socket");
 
-void UDPServer::start_receive()
-{
-  socket_.async_receive_from(
-      boost::asio::buffer(recv_buffer_),
-      endpoint_,
-      boost::bind(
-        &UDPServer::handle_receive,
-        this,
-        boost::asio::placeholders::error,
-        boost::asio::placeholders::bytes_transferred
-      )
-  );
-}
-
-void UDPServer::handle_receive(const boost::system::error_code& error,
-    size_t bytes_transferred)
-{
-  if (error && error != boost::asio::error::message_size)
-  {
-    throw boost::system::system_error(error);
+    //char *ip_from = inet_ntoa(remote_addr.sin_addr);
+    //int port_from = ntohs(remote_addr.sin_port);
+    //cout << "Received " << buf << " from "
+    //     << ip_from << ":" << port_from << endl;
+    cout << buf << endl;
   }
-
-  string message(recv_buffer_.begin(), bytes_transferred);
-  cout << message << endl;
-  socket_.send_to(boost::asio::buffer(message), endpoint_);
-
-  start_receive();
-}
-
-// PeerService
-PeerService::PeerService(const int& port)
-  : server_(port) { }
-
-PeerService::~PeerService()
-{
-  for(auto it = peers_.begin(); it != peers_.end(); ++it)
-    it->second->close();
-}
-
-void PeerService::join(const int& id, const string& host, const int& port)
-{
-  UDPClient* client = new UDPClient(host, port);
-  peers_[id] = client;
 }

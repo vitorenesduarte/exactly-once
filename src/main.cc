@@ -1,16 +1,11 @@
+#include <unistd.h>
 #include "../include/peer_service.h"
 
-using namespace std;
+using std::cout;
+using std::endl;
 
-int main()
-{
-    PeerService ps(3000);
-
-    // UDPClient client("localhost", 3000);
-    // stringstream ss;
-    // ss << "HELLO" << endl;
-    // client.send(ss);
-    sleep(1000);
-
+int main() {
+  peer_service(3000);
+  sleep(1000);
   return 0;
 }

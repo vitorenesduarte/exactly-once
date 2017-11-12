@@ -14,10 +14,6 @@ project(exactly-once)
 # binaries in bin folder
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin/)
 
-# boost
-hunter_add_package(Boost COMPONENTS system thread)
-find_package(Boost CONFIG REQUIRED system thread)
-
 # msgpack
 hunter_add_package(msgpack)
 find_package(msgpack CONFIG REQUIRED)
@@ -25,9 +21,7 @@ find_package(msgpack CONFIG REQUIRED)
 # build test
 add_executable(simple_test test/simple_test.cc)
 target_link_libraries(simple_test msgpack::msgpack)
+
 # build main
 add_executable(main src/peer_service.cc src/main.cc)
-target_link_libraries(main Boost::boost
-                           Boost::system
-                           Boost::thread
-                           msgpack::msgpack)
+target_link_libraries(main msgpack::msgpack)

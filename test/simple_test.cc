@@ -2,8 +2,6 @@
 #include "../include/monoids.h"
 #include "../include/handoff.h"
 
-using namespace std;
-
 template<typename T>
 Handoff<T> sub(Handoff<T>& h, int id) {
   Handoff<T> res;
@@ -23,22 +21,22 @@ void test1()
   o2.plus(8); o2.sck=10;
 
   // merge 1 <- 2
-  o1.mergein(sub(o2, 1));
+  o1.merge(sub(o2, 1));
   assert (o1.val == 4 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 8 && o2.sck == 10 && o2.dck == 0);
 
   // merge 1 -> 2
-  o2.mergein(sub(o1, 2));
+  o2.merge(sub(o1, 2));
   assert (o1.val == 4 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
 
   // merge 1 <- 2
-  o1.mergein(sub(o2, 1));
+  o1.merge(sub(o2, 1));
   assert (o1.val == 6 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
 
   // merge 1 -> 2
-  o2.mergein(sub(o1, 2));
+  o2.merge(sub(o1, 2));
   assert (o1.val == 6 && o1.sck == 0 && o1.dck == 21);
   assert (o2.val == 6 && o2.sck == 11 && o2.dck == 0);
 
@@ -63,10 +61,10 @@ void test2()
     int a = i % 4;
     int b = (i + 1) % 4;
     // merge a <- b
-    ov[a].mergein(sub(ov[b], a));
+    ov[a].merge(sub(ov[b], a));
 
     // merge a -> b
-    ov[b].mergein(sub(ov[a], b));
+    ov[b].merge(sub(ov[a], b));
 
     // not so random atacker replay
     if (rand() % 2 == 0)
@@ -76,12 +74,12 @@ void test2()
 
     if (rand() % 2 == 0)
     {
-      ov[a].mergein(sub(oldov[b], a)); // merge old state ->
+      ov[a].merge(sub(oldov[b], a)); // merge old state ->
     }
 
     if (rand() % 2 == 0)
     {
-      ov[b].mergein(sub(oldov[a], b)); // merge old state  <-
+      ov[b].merge(sub(oldov[a], b)); // merge old state  <-
     }
   }
   for (int i=0; i<4; i++)
@@ -173,19 +171,19 @@ void gplot1()
         if (replay)
         {
           if (rand() % 100 <= replayp)
-            ov[i].mergein(rov[(i+((unsigned int) exp2(l)))%nodes]); // merge from "next"
+            ov[i].merge(rov[(i+((unsigned int) exp2(l)))%nodes]); // merge from "next"
           if (rand() % 100 <= replayp)
-            ov[i].mergein(rov[(i-((unsigned int) exp2(l))+nodes)%nodes]); // merge from "previous"
+            ov[i].merge(rov[(i-((unsigned int) exp2(l))+nodes)%nodes]); // merge from "previous"
         }
         // Receive messages, with possible losses
         if (rand() % 100 >= lossp)
-          ov[i].mergein(rsov[(i+((unsigned int) exp2(l)))%nodes]); // merge from "next"
+          ov[i].merge(rsov[(i+((unsigned int) exp2(l)))%nodes]); // merge from "next"
         if (rand() % 100 >= lossp)
-          ov[i].mergein(rsov[(i-((unsigned int) exp2(l))+nodes)%nodes]); // merge from "previous"
+          ov[i].merge(rsov[(i-((unsigned int) exp2(l))+nodes)%nodes]); // merge from "previous"
       }
       // Ring
-      // ov[i].mergein(rsov[(i+1)%nodes]); // merge from next
-      // ov[i].mergein(rsov[(i-1+nodes)%nodes]); // merge from previous
+      // ov[i].merge(rsov[(i+1)%nodes]); // merge from next
+      // ov[i].merge(rsov[(i-1+nodes)%nodes]); // merge from previous
     }
   }
   // Comment report on final values
