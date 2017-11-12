@@ -7,7 +7,6 @@ using std::endl;
 class HandoffWrapper : public Wrapper<int> {
 public:
   HandoffWrapper(int* x) : Wrapper(x) { }
-  ~HandoffWrapper() { }
   void apply(char* buf, int len) {
     cout << "T: " << *t_ << endl;
     cout << "BUF: " << buf << endl;
