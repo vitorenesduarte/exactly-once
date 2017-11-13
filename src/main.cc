@@ -23,21 +23,6 @@ public:
   }
 };
 
-// https://stackoverflow.com/a/236803/4262469
-template<typename Out>
-void str_split(const string &s, char delim, Out result) {
-	stringstream ss(s);
-	string item;
-	while (getline(ss, item, delim)) {
-		*(result++) = item;
-	}
-}
-vector<string> str_split(const string &s, char delim) {
-	vector<string> elems;
-	str_split(s, delim, back_inserter(elems));
-	return elems;
-}
-
 int main(int argc, char** argv) {
 
   // default id
@@ -80,11 +65,7 @@ int main(int argc, char** argv) {
   sleep(2);
 
   for(auto it = connections.begin(); it != connections.end(); ++it) {
-    vector<string> parts = str_split(*it, ':');
-    int peer_id = stoi(parts.at(0));
-    string peer_ip = parts.at(1);
-    int peer_port = stoi(parts.at(2));
-    ps.join(peer_id, peer_ip, peer_port);
+    ps.join(*it);
   }
 
   h.plus(id);

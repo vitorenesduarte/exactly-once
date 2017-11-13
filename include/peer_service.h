@@ -12,12 +12,11 @@
 #include <iostream>
 #include <unordered_map>
 
+#include "util.h"
+
 using std::cout;
 using std::cerr;
 using std::endl;
-using std::string;
-using std::vector;
-using std::stringstream;
 using std::unordered_map;
 
 /*
@@ -85,6 +84,15 @@ public:
       res.push_back(it->first);
     }
     return res;
+  }
+
+  void join(string spec) {
+    // assumes a string in the form id:ip:port
+    vector<string> parts = str_split(spec, ':');
+    int peer_id = stoi(parts.at(0));
+    string peer_ip = parts.at(1);
+    int peer_port = stoi(parts.at(2));
+    join(peer_id, peer_ip, peer_port);
   }
 
   void join(int id, const string& ip, const int& port) {
