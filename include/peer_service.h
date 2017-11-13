@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <assert.h>
 #include <string.h>
+#include <vector>
 #include <iostream>
 #include <unordered_map>
 
@@ -15,6 +16,7 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
+using std::vector;
 using std::stringstream;
 using std::unordered_map;
 
@@ -74,6 +76,15 @@ public:
       cerr << "Error creating reader thread (start)" << endl;
       return;
     }
+  }
+  
+  vector<int> members() {
+    // all peers that ever joined
+    vector<int> res;
+    for(auto it = specs_.begin(); it != specs_.end(); ++it) {
+      res.push_back(it->first);
+    }
+    return res;
   }
 
   void join(int id, const string& ip, const int& port) {
