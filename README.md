@@ -19,6 +19,29 @@ $ make test
 ```
 
 ### Run server
+
+```bash
+$ bin/main
+```
+
+#### Optional arguments
+
+- `-i ID`, node identifier
+- `-p PORT`, port to listen on
+- `-c ID:IP:PORT`, connect to node with id `ID`, with ip `IP`, listening on port `PORT`
+- `-f FANOUT`, fanout (if `-f 0` it behaves as a flood algorithm)
+- `-t INTERVAL`, synchronization interval (seconds)
+
+The defaults are:
+- `-i 0`
+- `-p 3000`
+- `-f 0`
+- `-t 1`
+
+#### Example
+
+Three nodes with identifiers `0`, `1` and `2`, all connected:
+
 ```bash
 $ bin/main -i 0 -p 3000 -c 1:127.0.0.1:3001 -c 2:127.0.0.1:3002
 ```
