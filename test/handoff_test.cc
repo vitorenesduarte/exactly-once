@@ -194,6 +194,7 @@ void gplot1()
 
 int main()
 {
+  cout << "starting handoff tests..." << endl;
   test1();
   test2();
   test3();

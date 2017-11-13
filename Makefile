@@ -13,4 +13,5 @@ build: deps
 	#cmake --build _builds --config Debug
 
 test: build
-	bin/simple_test
+	bin/handoff_test
+	bin/peer_service_test

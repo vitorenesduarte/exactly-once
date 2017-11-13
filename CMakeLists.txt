@@ -18,10 +18,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_HOME_DIRECTORY}/bin/)
 hunter_add_package(msgpack)
 find_package(msgpack CONFIG REQUIRED)
 
-# build test
-add_executable(simple_test test/simple_test.cc)
-target_link_libraries(simple_test msgpack::msgpack)
-
 # build main
 add_executable(main src/main.cc)
 target_link_libraries(main msgpack::msgpack)
+
+# build tests
+# - handoff
+add_executable(handoff_test test/handoff_test.cc)
+target_link_libraries(handoff_test msgpack::msgpack)
+# - peer_service
+add_executable(peer_service_test test/peer_service_test.cc)
+target_link_libraries(peer_service_test msgpack::msgpack)

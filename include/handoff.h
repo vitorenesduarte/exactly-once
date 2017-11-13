@@ -14,7 +14,7 @@ using std::ostream;
 using std::unordered_map;
 
 /*
- For info no copy/move constructor/assignment see:
+ For info on copy/move constructor/assignment see:
    https://stackoverflow.com/a/29988626/4262469
 */
 

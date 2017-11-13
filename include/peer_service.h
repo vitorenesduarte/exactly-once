@@ -6,7 +6,8 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <pthread.h>
-#include <string>
+#include <assert.h>
+#include <string.h>
 #include <iostream>
 #include <unordered_map>
 
@@ -16,6 +17,11 @@ using std::endl;
 using std::string;
 using std::stringstream;
 using std::unordered_map;
+
+/*
+ For info on UDP see:
+   https://www.abc.se/~m6695/udp.html
+*/
 
 const unsigned int MAX_DATAGRAM_SIZE = 65536;
 
@@ -82,16 +88,28 @@ public:
     cout << "Attempt to join " << id << " on " << ip << ":" << port;
     if(sock.valid) {
       socks_[id] = sock;
-      cout << "succeeded" << endl;
-    } else cout << "failed" << endl;
+      cout << " succeeded" << endl;
+    } else cout << " failed" << endl;
   }
 
-  void send(int id, char* buf, int len) {
-    auto sock = socks_.find(id);
-    if(sock == socks_.end()) {
+  void send(int id, const char* buf, int len) {
+    assert(len <= MAX_DATAGRAM_SIZE);
+    auto ps = socks_.find(id);
+    if(ps == socks_.end()) {
       cerr << "Peer " << id << " was never connected!" << endl;
       return;
-    }
+    };
+
+    int ras = sizeof(ps->second.addr);
+    int r = sendto(
+      ps->second.socket,
+      buf,
+      len,
+      0,
+      (struct sockaddr *) &ps->second.addr,
+      ras
+    );
+    if(r == -1) cerr << "Error sending message to " << id << endl;
   }
 
 private:
@@ -150,7 +168,7 @@ void *reader(void *in) {
   if(r == -1) {
     cerr << "Error binding address (reader)" << endl;
     exit(1);
-  }
+  } else cout << "Listening on " << inet_ntoa(local_addr.sin_addr) << ":" << args->port << endl;
 
   // listen new messages forever
   char buf[MAX_DATAGRAM_SIZE];

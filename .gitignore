@@ -2,4 +2,4 @@ _builds/
 *.swp
 *.DS_Store
 bin/main
-bin/simple_test
+bin/*_test
