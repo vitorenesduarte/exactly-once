@@ -36,14 +36,13 @@ struct ReaderArgs {
 template<typename T>
 void *reader(void *in);
 
-void warn(string msg);
-
 struct PeerSpec {
   string ip;
   int port;
 };
 
 struct PeerSock {
+  bool valid;
   struct sockaddr_in addr;
   int socket;
 };
@@ -65,12 +64,13 @@ public:
     args->w = w;
 
     int r = pthread_create(&tr, NULL, reader<T>, (void *) args);
-    if(r) warn("Error creating reader thread (start)");
+    if(r) {
+      cerr << "Error creating reader thread (start)" << endl;
+      return;
+    }
   }
 
   void join(int id, const string& ip, const int& port) {
-    int r;
-
     // store peer spec for possible reconnect
     struct PeerSpec spec;
     spec.ip = ip;
@@ -79,33 +79,48 @@ public:
 
     // connect to peer
     struct PeerSock sock = connect(ip, port);
-    socks_[id] = sock;
+    cout << "Attempt to join " << id << " on " << ip << ":" << port;
+    if(sock.valid) {
+      socks_[id] = sock;
+      cout << "succeeded" << endl;
+    } else cout << "failed" << endl;
   }
 
   void send(int id, char* buf, int len) {
-
+    auto sock = socks_.find(id);
+    if(sock == socks_.end()) {
+      cerr << "Peer " << id << " was never connected!" << endl;
+      return;
+    }
   }
 
 private:
   struct PeerSock connect(const string& ip, const int& port) {
+    struct PeerSock res;
+    res.valid = false;
+
     // open socket
     int sock;
-    if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-      warn("Error creating socket (join)");
+    if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+      cerr << "Error creating socket (join)" << endl;
+      return res;
+    }
 
-    // bind ip address
+    // bind ip addres
     struct sockaddr_in remote_addr;
     memset((char *) &remote_addr, 0, sizeof(remote_addr));
     remote_addr.sin_family = AF_INET;
     remote_addr.sin_port = htons(port);
-    if(inet_aton(ip.c_str(), &remote_addr.sin_addr) == 0)
-      warn("Error connecting to address (join)");
+    if(inet_aton(ip.c_str(), &remote_addr.sin_addr) == 0) {
+      cerr << "Error connecting to address (join)" << endl;
+      return res;
+    }
 
-    struct PeerSock ps;
-    ps.addr = remote_addr;
-    ps.socket = sock;
+    res.valid = true;
+    res.addr = remote_addr;
+    res.socket = sock;
 
-    return ps;
+    return res;
   }
 
 };
@@ -116,8 +131,10 @@ void *reader(void *in) {
   int r;
   // open socket
   int sock;
-  if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-    warn("Error creating socket (reader)");
+  if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
+    cerr << "Error creating socket (reader)" << endl;
+    exit(1);
+  }
 
   // bind ip address
   struct sockaddr_in local_addr;
@@ -130,7 +147,10 @@ void *reader(void *in) {
     (struct sockaddr *) &local_addr,
     sizeof(local_addr)
   );
-  if(r == -1) warn("Error binding address (reader)");
+  if(r == -1) {
+    cerr << "Error binding address (reader)" << endl;
+    exit(1);
+  }
 
   // listen new messages forever
   char buf[MAX_DATAGRAM_SIZE];
@@ -146,18 +166,15 @@ void *reader(void *in) {
       (struct sockaddr *) &remote_addr,
       (socklen_t *) &ras
     );
-    if(len == -1) warn("Error reading from socket (reader)");
-
-    //char *ip_from = inet_ntoa(remote_addr.sin_addr);
-    //int port_from = ntohs(remote_addr.sin_port);
-    //cout << "Received " << buf << " from "
-    //     << ip_from << ":" << port_from << endl;
-    args->w->apply(buf, len);
+    if(len == -1) cerr << "Error reading from socket (reader)" << endl;
+    else {
+      //char *ip_from = inet_ntoa(remote_addr.sin_addr);
+      //int port_from = ntohs(remote_addr.sin_port);
+      //cout << "Received " << buf << " from "
+      //     << ip_from << ":" << port_from << endl;
+      args->w->apply(buf, len);
+    }
   }
-}
-
-void warn(string msg) {
-  cerr << msg << endl;
 }
 
 #endif
