@@ -5,8 +5,8 @@
 #include <ostream>
 #include <cmath>
 
-using std::pair;
 using std::map;
+using std::pair;
 
 float zero()
 {

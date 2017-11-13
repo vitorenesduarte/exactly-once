@@ -8,6 +8,7 @@
 #include <msgpack.hpp>
 
 using std::cout;
+using std::pair;
 using std::endl;
 using std::stringstream;
 using std::ostream;

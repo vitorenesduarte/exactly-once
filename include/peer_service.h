@@ -77,11 +77,12 @@ public:
   }
 
   void join(int id, const string& ip, const int& port) {
-    // store peer spec for possible reconnect
+    // store peer spec
     struct PeerSpec spec;
     spec.ip = ip;
     spec.port = port;
     specs_[id] = spec;
+    // TODO write to disk
 
     // connect to peer
     struct PeerSock sock = connect(ip, port);
@@ -94,22 +95,33 @@ public:
 
   void send(int id, const char* buf, int len) {
     assert(len <= MAX_DATAGRAM_SIZE);
-    auto ps = socks_.find(id);
-    if(ps == socks_.end()) {
+    auto spec = specs_.find(id);
+    if(spec == specs_.end()) {
       cerr << "Peer " << id << " was never connected!" << endl;
       return;
-    };
+    }
 
-    int ras = sizeof(ps->second.addr);
+    auto sock = socks_.find(id);
+    if(sock == socks_.end()) {
+      // after a reboot
+      sock->second = connect(spec->second.ip, spec->second.port);
+    }
+
+    // assume it's connected and try to send
+    // if error, connect in again
+    int ras = sizeof(sock->second.addr);
     int r = sendto(
-      ps->second.socket,
+      sock->second.socket,
       buf,
       len,
       0,
-      (struct sockaddr *) &ps->second.addr,
+      (struct sockaddr *) &sock->second.addr,
       ras
     );
-    if(r == -1) cerr << "Error sending message to " << id << endl;
+    if(r == -1) {
+      cerr << "Error sending message to " << id << endl;
+      sock->second = connect(spec->second.ip, spec->second.port);
+    }
   }
 
 private:
