@@ -30,13 +30,13 @@ $ bin/main
 - `-p PORT`, port to listen on
 - `-c ID:IP:PORT`, connect to node with id `ID`, with ip `IP`, listening on port `PORT`
 - `-f FANOUT`, fanout (if `-f 0` it behaves as a flood algorithm)
-- `-t INTERVAL`, synchronization interval (seconds)
+- `-t INTERVAL`, synchronization interval (milliseconds)
 
 The defaults are:
 - `-i 0`
 - `-p 3000`
-- `-f 0`
-- `-t 1`
+- `-f 1`
+- `-t 1000`
 
 #### Example
 

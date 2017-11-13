@@ -97,14 +97,14 @@ public:
 
   void join(int id, const string& ip, const int& port) {
     // store peer spec
-    struct PeerSpec spec;
+    PeerSpec spec;
     spec.ip = ip;
     spec.port = port;
     specs_[id] = spec;
     // TODO write to disk
 
     // connect to peer
-    struct PeerSock sock = connect(ip, port);
+    PeerSock sock = connect(ip, port);
     cout << "Attempt to join " << id << " on " << ip << ":" << port;
     if(sock.valid) {
       socks_[id] = sock;
@@ -145,7 +145,7 @@ public:
 
 private:
   struct PeerSock connect(const string& ip, const int& port) {
-    struct PeerSock res;
+    PeerSock res;
     res.valid = false;
 
     // open socket
@@ -176,7 +176,7 @@ private:
 
 template<typename T>
 void *reader(void *in) {
-  struct ReaderArgs<T>* args = (ReaderArgs<T>*) in;
+  ReaderArgs<T>* args = (ReaderArgs<T>*) in;
   int r;
   // open socket
   int sock;
