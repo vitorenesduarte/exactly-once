@@ -8,12 +8,14 @@
 #include <pthread.h>
 #include <string>
 #include <iostream>
+#include <unordered_map>
 
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
 using std::stringstream;
+using std::unordered_map;
 
 const unsigned int MAX_DATAGRAM_SIZE = 65536;
 
@@ -31,19 +33,31 @@ struct ReaderArgs {
   Wrapper<T>* w;
 };
 
-void diep(string msg) {
-  cerr << msg << endl;
-  exit(1);
-}
-
 template<typename T>
 void *reader(void *in);
+
+void warn(string msg);
+
+struct PeerSpec {
+  string ip;
+  int port;
+};
+
+struct PeerSock {
+  struct sockaddr_in addr;
+  int socket;
+};
 
 template<typename T>
 class PeerService
 {
+private:
+  unordered_map<int, PeerSpec> specs_;
+  unordered_map<int, PeerSock> socks_;
+
 public:
   PeerService() { }
+
   void start(const int& port, Wrapper<T>* w) {
     pthread_t tr;
     ReaderArgs<T>* args = new ReaderArgs<T>;
@@ -51,8 +65,49 @@ public:
     args->w = w;
 
     int r = pthread_create(&tr, NULL, reader<T>, (void *) args);
-    if(r) diep("Error creating reader thread");
+    if(r) warn("Error creating reader thread (start)");
   }
+
+  void join(int id, const string& ip, const int& port) {
+    int r;
+
+    // store peer spec for possible reconnect
+    struct PeerSpec spec;
+    spec.ip = ip;
+    spec.port = port;
+    specs_[id] = spec;
+
+    // connect to peer
+    struct PeerSock sock = connect(ip, port);
+    socks_[id] = sock;
+  }
+
+  void send(int id, char* buf, int len) {
+
+  }
+
+private:
+  struct PeerSock connect(const string& ip, const int& port) {
+    // open socket
+    int sock;
+    if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
+      warn("Error creating socket (join)");
+
+    // bind ip address
+    struct sockaddr_in remote_addr;
+    memset((char *) &remote_addr, 0, sizeof(remote_addr));
+    remote_addr.sin_family = AF_INET;
+    remote_addr.sin_port = htons(port);
+    if(inet_aton(ip.c_str(), &remote_addr.sin_addr) == 0)
+      warn("Error connecting to address (join)");
+
+    struct PeerSock ps;
+    ps.addr = remote_addr;
+    ps.socket = sock;
+
+    return ps;
+  }
+
 };
 
 template<typename T>
@@ -62,7 +117,7 @@ void *reader(void *in) {
   // open socket
   int sock;
   if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1)
-    diep("Error creating socket");
+    warn("Error creating socket (reader)");
 
   // bind ip address
   struct sockaddr_in local_addr;
@@ -75,7 +130,7 @@ void *reader(void *in) {
     (struct sockaddr *) &local_addr,
     sizeof(local_addr)
   );
-  if(r == -1) diep("Error binding address");
+  if(r == -1) warn("Error binding address (reader)");
 
   // listen new messages forever
   char buf[MAX_DATAGRAM_SIZE];
@@ -91,7 +146,7 @@ void *reader(void *in) {
       (struct sockaddr *) &remote_addr,
       (socklen_t *) &ras
     );
-    if(len == -1) diep("Error reading from socket");
+    if(len == -1) warn("Error reading from socket (reader)");
 
     //char *ip_from = inet_ntoa(remote_addr.sin_addr);
     //int port_from = ntohs(remote_addr.sin_port);
@@ -99,6 +154,10 @@ void *reader(void *in) {
     //     << ip_from << ":" << port_from << endl;
     args->w->apply(buf, len);
   }
+}
+
+void warn(string msg) {
+  cerr << msg << endl;
 }
 
 #endif
