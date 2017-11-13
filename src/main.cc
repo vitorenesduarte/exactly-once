@@ -1,4 +1,5 @@
 #include <unistd.h>
+#include <stdlib.h>
 #include <vector>
 #include "../include/monoids.h"
 #include "../include/handoff.h"
@@ -18,6 +19,7 @@ public:
     h.unpack(buf, len);
     t_->merge(h);
     cout << "received handoff from " << h.id <<  endl;
+    cout << "current val: " << t_->val << endl;
   }
 };
 
@@ -75,6 +77,7 @@ int main(int argc, char** argv) {
   Wrapper<MyHandoff>* w = new MyWrapper(&h);
   PeerService<MyHandoff> ps;
   ps.start(port, w);
+  sleep(2);
 
   for(auto it = connections.begin(); it != connections.end(); ++it) {
     vector<string> parts = str_split(*it, ':');
@@ -83,5 +86,20 @@ int main(int argc, char** argv) {
     int peer_port = stoi(parts.at(2));
     ps.join(peer_id, peer_ip, peer_port);
   }
+
+  h.plus(id);
+
+  for(int i = 0; i < 10; i++) {
+    vector<int> members = ps.members();
+    int j = rand() % members.size();
+    int member = members.at(j);
+
+    stringstream ss;
+    h.pack(ss);
+
+    ps.send(member, ss.str().c_str(), ss.str().size());
+    sleep(rand() % 5);
+  }
+  sleep(10);
   return 0;
 }
