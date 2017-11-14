@@ -1,7 +1,7 @@
 all: build
 
 deps:
-	-git clone https://github.com/msgpack/msgpack-c
+	if [ ! -d msgpack-c ]; then git clone https://github.com/msgpack/msgpack-c; fi
 	cd msgpack-c && git pull
 
 build: deps
