@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/vitorenesduarte/exactly-once.svg?branch=master)](https://travis-ci.org/vitorenesduarte/exactly-once)
+
 # exactly-once
 
 ### Build
