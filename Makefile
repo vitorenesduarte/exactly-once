@@ -1,16 +1,13 @@
-ifndef HUNTER_ROOT
-  $(error HUNTER_ROOT is not set)
-endif
-
 all: build
 
 deps:
-	cmake -H. -B_builds
-	#cmake -H. -B_builds -DHUNTER_STATUS_DEBUG=ON -DCMAKE_BUILD_TYPE=Debug
+	-git clone https://github.com/msgpack/msgpack-c
+	cd msgpack-c && git pull
 
 build: deps
-	cmake --build _builds
-	#cmake --build _builds --config Debug
+	g++ --std=c++11 -pthread -I msgpack-c/include test/handoff_test.cc -o bin/handoff_test
+	g++ --std=c++11 -pthread -I msgpack-c/include test/peer_service_test.cc -o bin/peer_service_test
+	g++ --std=c++11 -pthread -I msgpack-c/include src/main.cc -o bin/main
 
 test: build
 	bin/handoff_test

@@ -1,11 +1,5 @@
 # exactly-once
 
-### Requirements
-
-- `export HUNTER_ROOT=~/.hunter`
-- [CMake](https://cmake.org/)
-  - on Raspbian: `sudo apt update && sudo apt install cmake`
-
 ### Build
 ```bash
 $ make

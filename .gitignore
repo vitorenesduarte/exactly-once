@@ -1,5 +1,5 @@
-_builds/
 *.swp
 *.DS_Store
 bin/main
 bin/*_test
+msgpack-c/

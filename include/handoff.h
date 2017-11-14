@@ -87,7 +87,7 @@ public:
       tokens=std::move(h.tokens);
     }
     return *this;
-	}
+  }
 
   // copy assignment
   Handoff& operator=(Handoff<T>& h)
@@ -105,7 +105,7 @@ public:
       tokens=h.tokens;
     }
     return *this;
-	}
+  }
 
   unsigned int numtokens()
   {

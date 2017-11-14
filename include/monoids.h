@@ -66,12 +66,12 @@ map<K,V> oplus (const map<K,V> & a, const map<K,V> & b)
 
 float needs (const float & a, const float & b)
 {
-  return (b-a+abs(b-a))/4;
+  return (b-a+std::abs(b-a))/4;
 }
 
 int needs (const int & a, const int & b)
 {
-  return (b-a+abs(b-a))/4;
+  return (b-a+std::abs(b-a))/4;
 }
 
 template<typename K, typename V>
@@ -110,16 +110,16 @@ map<K,V> needs (const map<K,V> & a, const map<K,V> & b)
 pair<float, float> split(const float & x, const float & h)
 {
   pair<float, float> r;
-  r.first=(x-h+abs(x-h))/2;
-  r.second=(x+h-abs(x-h))/2;
+  r.first=(x-h+std::abs(x-h))/2;
+  r.second=(x+h-std::abs(x-h))/2;
   return r;
 }
 
 pair<int, int> split(const int & x, const int & h)
 {
   pair<int, int> r;
-  r.first=(x-h+abs(x-h))/2;
-  r.second=(x+h-abs(x-h))/2;
+  r.first=(x-h+std::abs(x-h))/2;
+  r.second=(x+h-std::abs(x-h))/2;
   return r;
 }
 

@@ -75,6 +75,8 @@ public:
       cerr << "Error creating reader thread (start)" << endl;
       return;
     }
+
+    // TODO restore previous connections
   }
   
   vector<int> members() {
@@ -122,7 +124,7 @@ public:
 
     auto sock = socks_.find(id);
     if(sock == socks_.end()) {
-      // after a reboot
+      // after a crash 
       sock->second = connect(spec->second.ip, spec->second.port);
     }
 
