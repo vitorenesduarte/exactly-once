@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
      h.plus(id * (i * 10));
   }
 
-  sleep(60);
+  sleep(300);
 
   return 0;
 }
