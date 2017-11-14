@@ -1,0 +1,10 @@
+language: cpp
+compiler:
+  - gcc
+  - clang
+before_script:
+  - make
+script:
+  - make test
+notifications:
+  slack: haslab:2lNTA7mqIcOfJ7fZpsMombyI
