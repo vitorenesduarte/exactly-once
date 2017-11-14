@@ -2,9 +2,7 @@
 
 ### Requirements
 
-```bash
-$ export HUNTER_ROOT=~/.hunter
-```
+- `export HUNTER_ROOT=~/.hunter`
 - [CMake](https://cmake.org/)
   - on Raspbian: `sudo apt update && sudo apt install cmake`
 
