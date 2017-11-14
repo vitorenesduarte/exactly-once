@@ -21,8 +21,7 @@ public:
     MyHandoff h;
     h.unpack(buf, len);
     t_->merge(h);
-    cout << t_->id << "> received handoff from " << h.id <<  endl;
-    cout << t_->id << "> current val: " << t_->val << endl;
+    cout << t_->id << "> received handoff from " << h.id << " [" << t_->val << "]" << endl;
   }
 };
 
@@ -55,7 +54,7 @@ void *sync(void *in) {
 
     for(int i = 0; i < until; ++i) {
       int member = members.at(i);
-      // cout << args->h->id << "> sending handoff to " << member << endl;
+      cout << args->h->id << "> sending  handoff to   " << member << " [" << args->h->val << "]" << endl;
 
       // serialize in `ss` the information about this `member`
       stringstream ss;
