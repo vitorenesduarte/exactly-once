@@ -51,6 +51,26 @@ $ bin/main -i 1 -p 3001 -c 0:127.0.0.1:3000 -c 2:127.0.0.1:3002
 $ bin/main -i 2 -p 3002 -c 0:127.0.0.1:3000 -c 1:127.0.0.1:3001
 ```
 
+#### Example using Docker Compose
+```
+$ docker-compose up
+```
+
+#### Chaos testing with [pumba](https://github.com/gaia-adm/pumba)
+
+After running `docker-compose up`,
+
+- packet loss
+```bash
+$ pumba netem --tc-image gaiadocker/iproute2 --duration 5m --interface eth0 loss --percent 50
+```
+- packet delay
+```bash
+$ pumba netem --tc-image gaiadocker/iproute2 --duration 5m --interface eth0 delay --time 1000  --jitter 1000
+```
+
+([tutorial on pumba](https://hackernoon.com/network-emulation-for-docker-containers-f4d36b656cc3))
+
 ### Assumptions
 - ids are integers
 - max UDP datagram size is `2^16 = 65536`
