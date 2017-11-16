@@ -2,6 +2,10 @@
 
 # exactly-once
 
+### Assumptions
+- ids are integers
+- max UDP datagram size is `2^16 = 65536`
+
 ### Build
 ```bash
 $ make
@@ -70,7 +74,3 @@ $ pumba netem --tc-image gaiadocker/iproute2 --duration 5m --interface eth0 dela
 ```
 
 ([tutorial on pumba](https://hackernoon.com/network-emulation-for-docker-containers-f4d36b656cc3))
-
-### Assumptions
-- ids are integers
-- max UDP datagram size is `2^16 = 65536`
