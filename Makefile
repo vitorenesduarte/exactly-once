@@ -7,6 +7,7 @@ deps:
 build: deps
 	g++ --std=c++11 -pthread -I msgpack-c/include test/handoff_test.cc -o bin/handoff_test
 	g++ --std=c++11 -pthread -I msgpack-c/include test/peer_service_test.cc -o bin/peer_service_test
+	g++ --std=c++11 -pthread -I msgpack-c/include test/pumba_test.cc -o bin/pumba_test
 	g++ --std=c++11 -pthread -I msgpack-c/include src/main.cc -o bin/main
 
 test: build
@@ -15,3 +16,4 @@ test: build
 
 docker:
 	docker build --no-cache -t vitorenesduarte/exactly-once -f Dockerfiles/exactly-once .
+	docker push vitorenesduarte/exactly-once
