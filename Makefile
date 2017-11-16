@@ -12,3 +12,6 @@ build: deps
 test: build
 	bin/handoff_test
 	bin/peer_service_test
+
+docker:
+	docker build -t vitorenesduarte/exactly-once .

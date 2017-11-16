@@ -7,6 +7,11 @@
 $ make
 ```
 
+### Docker build
+```bash
+$ make docker
+```
+
 ### Run tests
 ```bash
 $ make test
