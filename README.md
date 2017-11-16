@@ -74,3 +74,4 @@ $ pumba netem --tc-image gaiadocker/iproute2 --duration 5m --interface eth0 dupl
 ```
 
 ([tutorial on pumba](https://hackernoon.com/network-emulation-for-docker-containers-f4d36b656cc3))
+([info on netem](https://www.systutorials.com/docs/linux/man/8-tc-netem/))
