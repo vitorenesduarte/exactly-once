@@ -14,4 +14,4 @@ test: build
 	bin/peer_service_test
 
 docker:
-	docker build -t vitorenesduarte/exactly-once .
+	docker build --no-cache -t vitorenesduarte/exactly-once -f Dockerfiles/exactly-once .

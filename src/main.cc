@@ -141,9 +141,9 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  for(int i = 1; i <= 10; i++) {
+  for(int i = 1; i <= 20; i++) {
      sleep(rand() % 5);
-     h.plus(id * (i * 10));
+     h.plus((id + 1) * (i * 10));
   }
 
   sleep(300);
