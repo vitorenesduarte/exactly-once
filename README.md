@@ -57,20 +57,20 @@ $ bin/main -i 2 -p 3002 -c 0:127.0.0.1:3000 -c 1:127.0.0.1:3001
 
 #### Example using Docker Compose
 ```
-$ docker-compose up
+$ docker-compose up handoff0 handoff1 handoff2
 ```
 
 #### Chaos testing with [pumba](https://github.com/gaia-adm/pumba)
 
-After running `docker-compose up`,
+After running `docker-compose up pumba0 pumba1`,
 
 - packet loss
 ```bash
 $ pumba netem --tc-image gaiadocker/iproute2 --duration 5m --interface eth0 loss --percent 50
 ```
-- packet delay
+- packet duplication
 ```bash
-$ pumba netem --tc-image gaiadocker/iproute2 --duration 5m --interface eth0 delay --time 1000  --jitter 1000
+$ pumba netem --tc-image gaiadocker/iproute2 --duration 5m --interface eth0 duplicate --percent 50
 ```
 
 ([tutorial on pumba](https://hackernoon.com/network-emulation-for-docker-containers-f4d36b656cc3))

@@ -1,29 +1,35 @@
 version: "3"
 services:
-  h0:
-    build:
-      dockerfile: Dockerfiles/exactly-once
-      context: .
+  handoff0:
+    image: vitorenesduarte/exactly-once
     command: "bin/main -i 0 -p 3000 -c 1:10.5.0.101:3000 -c 2:10.5.0.102:3000"
     networks:
       handoff:
         ipv4_address: 10.5.0.100
-  h1:
-    build:
-      dockerfile: Dockerfiles/exactly-once
-      context: .
+  handoff1:
+    image: vitorenesduarte/exactly-once
     command: "bin/main -i 1 -p 3000 -c 0:10.5.0.100:3000 -c 2:10.5.0.102:3000"
     networks:
       handoff:
         ipv4_address: 10.5.0.101
-  h2:
-    build:
-      dockerfile: Dockerfiles/exactly-once
-      context: .
+  handoff2:
+    image: vitorenesduarte/exactly-once
     command: "bin/main -i 2 -p 3000 -c 0:10.5.0.100:3000 -c 1:10.5.0.101:3000"
     networks:
       handoff:
         ipv4_address: 10.5.0.102
+  pumba0:
+    image: vitorenesduarte/exactly-once
+    command: "bin/pumba_test -i 0 -p 3000 -c 1:10.5.0.101:3000"
+    networks:
+      handoff:
+        ipv4_address: 10.5.0.100
+  pumba1:
+    image: vitorenesduarte/exactly-once
+    command: "bin/pumba_test -i 1 -p 3000 -c 0:10.5.0.100:3000"
+    networks:
+      handoff:
+        ipv4_address: 10.5.0.101
 
 networks:
   handoff:
