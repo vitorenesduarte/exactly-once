@@ -1,8 +1,7 @@
 all: build
 
 deps:
-	if [ ! -d msgpack-c ]; then git clone https://github.com/msgpack/msgpack-c; fi
-	cd msgpack-c && git pull
+	if [ ! -d msgpack-c ]; then git clone https://github.com/msgpack/msgpack-c; else cd msgpack-c && git pull; fi
 
 build: deps
 	g++ --std=c++11 -pthread -I msgpack-c/include test/handoff_test.cc -o bin/handoff_test
